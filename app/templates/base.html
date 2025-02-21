@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>{% block title %}Home - Welcome{% endblock %}</title>
+    <!-- Link to external CSS files -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    {% block styles %} {% endblock %}
+  </head>
+  <body>
+    <!-- Navbar -->
+    <header>
+      <div class="nav-container">
+        <nav>
+          <div class="logo"></div>
+          <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            {% if current_user.is_authenticated%}
+            <li>
+              <a href="{{ url_for('dashboard') }}"
+                >Dashboard</a
+              >
+            </li>
+            <li><a href="">Contact</a></li>
+            <li>
+              <form
+                action="{{ url_for('logout') }}"
+                method="POST"
+                style="display: inline"
+              >
+                <button type="submit">Logout</button>
+              </form>
+            </li>
+            {% else %}
+            <li><a href="">Services</a></li>
+            <li><a href="">Contact</a></li>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            {% endif %}
+          </ul>
+          <div class="user">
+            {{ current_user.name + ' ' + current_user.surname if current_user.is_authenticated else ""}}
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %} 
+    {% endwith %}
+
+    <!-- Main content (this will be replaced in child templates) -->
+    <div class="container">
+      {% block content %}
+      <!-- Child templates will add their content here -->
+      {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2025 Advanced Platform. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Link to external JS files -->
+    <!-- <script src="{{ url_for('static', filename='js/scripts.js') }}"></script> -->
+  </body>
+</html>

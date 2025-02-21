@@ -1,0 +1,33 @@
+{% extends 'base.html'%} {% block title %} Dashboard | Secure Access {% endblock
+%} {% block styles %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/dashboard.css') }}"
+/>
+{% endblock %} {% block content %}
+
+<main>
+  <div class="profile-header">
+    <div class="profile-pic">
+      {{user.name[0].capitalize() + user.surname[0].capitalize()}}
+    </div>
+    <div class="user-info">
+      <h1>{{ user.name.capitalize() }} {{user.surname.capitalize()}}</h1>
+      <p>{{user.email}}</p>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a
+      href="{{url_for('edit_profile')}}"
+      >Edit Profile</a
+    >
+    <form
+      action="/logout"
+      method="POST"
+    >
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+</main>
+{% endblock %}
