@@ -1,7 +1,8 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import jsonify, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from app.forms import LoginForm, SignUpForm, EditProfileForm
 from app.services.user_services import UserService
+from app.services.unit_services import UnitService
 from datetime import timedelta
 from app.models import AuthUser
 
@@ -141,4 +142,23 @@ def register_routes(app):
             flash(response["success"], "success")
             logout_user()
         return redirect(url_for("home"))
+        pass
+
+
+    @app.route('/units')
+    def units():
+        return jsonify(unit=UnitService.get_all_units())
+
+    @app.route('/available-units')
+    def available_unit():
+        return jsonify(unit=UnitService.get_available_units())
+
+    @app.route('/units/<user_id>')
+    def user_unit(user_id):
+        return jsonify(unit=UnitService.get_unit_by_owner(user_id, current_user))
+
+    @app.route('/units/search')
+    def method_name():
+        query_floor_level = request.args.get("flevel")
+        # return jsonify(units=UnitService.get_unit)
         pass

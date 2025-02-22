@@ -56,11 +56,11 @@ class User(db.Model):
 
 
 # Delete a specific record
-book_id = 1
-with app.app_context():
-    user_to_delete = db.session.execute(db.select(User).where(User.id == book_id)).scalar()
-    db.session.delete(user_to_delete)
-    db.session.commit()
+# book_id = 1
+# with app.app_context():
+#     user_to_delete = db.session.execute(db.select(User).where(User.id == book_id)).scalar()
+#     db.session.delete(user_to_delete)
+#     db.session.commit()
 
 # db = sqlite3.connect("test.db")
 # cursor = db.cursor()

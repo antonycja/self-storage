@@ -10,7 +10,7 @@ class LoginForm(FlaskForm):
     ])
     password = PasswordField(label="Password", validators=[
         DataRequired(message="Password is required"),
-        Length(min=6, message="Password must be at least 6 characters long.")
+        Length(min=5, message="Password must be at least 5 characters long.")
     ])
     submit = SubmitField(label="Login")
 
@@ -25,7 +25,7 @@ class SignUpForm(FlaskForm):
         Email(message="Enter valid email.")
     ])
     password = PasswordField(label="Password", validators=[DataRequired(message="Password is required."), Length(
-        min=6, message="Password must be at least 6 characters long."), EqualTo("confirm", message="Passwords must match")])
+        min=5, message="Password must be at least 5 characters long."), EqualTo("confirm", message="Passwords must match")])
     confirm = PasswordField(label="Repeat Password")
     submit = SubmitField(label="Sign Up")
 
