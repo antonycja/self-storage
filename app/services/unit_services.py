@@ -1,6 +1,7 @@
 import json
 from typing import Optional, Dict, Any
-from app.models import db, UnitModel, UnitStatus
+from app.models.base import db
+from app.models.unit import UnitModel, UnitStatus
 from app.services.user_services import UserService
 from sqlalchemy.exc import SQLAlchemyError
 

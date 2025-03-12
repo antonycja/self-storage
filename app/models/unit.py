@@ -2,15 +2,7 @@ from app.models.base import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Float, JSON, Enum, ForeignKey, CheckConstraint, Numeric
 from typing import Optional
-import enum
-
-
-class UnitStatus(enum.Enum):
-    """Possible Unit status"""
-    AVAILABLE = "AVAILABLE"
-    OCCUPIED = "OCCUPIED"
-    RESERVED = "RESERVED"
-    MAINTENANCE = "MAINTENANCE"
+from app.models.enums import UnitStatus  # Add this import
 
 
 class UnitModel(BaseModel):
@@ -19,14 +11,15 @@ class UnitModel(BaseModel):
 
     unit_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     status: Mapped[UnitStatus] = mapped_column(
-        Enum(UnitStatus), nullable=False)
+        Enum(UnitStatus), nullable=False)  # Update this line
     size_sqm: Mapped[float] = mapped_column(Float, nullable=False)
     # Keeping as string since that's your current setup
-    monthly_rate: Mapped[float] = mapped_column(Numeric(10,2), nullable=False)
+    monthly_rate: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     climate_controlled: Mapped[str] = mapped_column(
         String(3), nullable=False)  # 'yes'/'no'
     floor_level: Mapped[str] = mapped_column(String(50), nullable=False)
-    security_features: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    security_features: Mapped[list] = mapped_column(
+        JSON, nullable=False, default=list)
     rental_duration_days: Mapped[int] = mapped_column(Integer, nullable=False)
     tenant_id: Mapped[Optional[int]] = mapped_column(
         Integer,
@@ -59,3 +52,8 @@ class UnitModel(BaseModel):
         CheckConstraint("climate_controlled IN ('yes', 'no')",
                         name='valid_climate_control')
     )
+
+    @staticmethod
+    def get_unit_status_enum():
+        from app.models import UnitStatus
+        return UnitStatus

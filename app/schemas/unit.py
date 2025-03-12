@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, validate, EXCLUDE
-from app.models.unit import UnitStatus
+from app.models.enums import UnitStatus
+from app.schemas.user import UserResponseSchema
 
 
 class UnitBaseSchema(Schema):
@@ -29,3 +30,24 @@ class UnitBaseSchema(Schema):
         validate=validate.Range(min=1),
         error_messages={
             "validator_failed": "Rental duration must be at least 1 day"})
+    
+    
+class UnitCreateSchema(UnitBaseSchema):
+    """Schema for unit creation"""
+    status = fields.Enum(UnitStatus, by_value=True, required=True)
+    
+class UnitUpdateSchema(UnitBaseSchema):
+    """Schema for unit updates"""
+    status = fields.Enum(UnitStatus, by_value=True)
+    tenant_id = fields.Int(allow_none=True)
+    shared_user_emails = fields.List(fields.Email())
+    
+class UnitResponseSchema(UnitBaseSchema):
+    """Schema for unit responses"""
+    unit_id = fields.Int()
+    status = fields.Enum(UnitStatus, by_value=True)
+    owner = fields.Nested(UserResponseSchema, dump_only=True)
+    tenant = fields.Nested(UserResponseSchema, dump_only=True, allow_none=True)
+    shared_user_email = fields.List(fields.Email(), dump_only=True)
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)

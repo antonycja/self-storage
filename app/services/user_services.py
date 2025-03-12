@@ -1,6 +1,7 @@
 import bcrypt
 from typing import Optional, Dict, Any
-from app.models import db, UserModel
+from app.models.base import db
+from app.models.user import UserModel
 
 
 class UserService():

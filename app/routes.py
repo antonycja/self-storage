@@ -4,7 +4,7 @@ from app.forms import LoginForm, SignUpForm, EditProfileForm
 from app.services.user_services import UserService
 from app.services.unit_services import UnitService
 from datetime import timedelta
-from app.models import AuthUser
+from app.models.user import AuthUser
 
 session_timeout = 1
 
