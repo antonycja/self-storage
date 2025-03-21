@@ -25,7 +25,6 @@ class UnitBaseSchema(Schema):
     floor_level = fields.Str()
 
     security_features = fields.List(fields.Str())
-
     rental_duration_days = fields.Int(
         validate=validate.Range(min=1),
         error_messages={
