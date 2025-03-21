@@ -1,6 +1,7 @@
+from datetime import datetime
 from app.models.base import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, Float, JSON, Enum, ForeignKey, CheckConstraint, Numeric
+from sqlalchemy import DateTime, Integer, String, Float, JSON, Enum, ForeignKey, CheckConstraint, Numeric
 from typing import Optional
 from app.models.enums import UnitStatus  # Add this import
 
@@ -44,7 +45,8 @@ class UnitModel(BaseModel):
                          user_id], back_populates="owned_units")
     tenant = relationship("UserModel", foreign_keys=[
                           tenant_id], back_populates="rented_units")
-
+    rentals = relationship("Rental", back_populates="unit")
+    
     # Constraints
     __table_args__ = (
         CheckConstraint('size_sqm > 0', name='positive_size'),
