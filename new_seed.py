@@ -66,7 +66,7 @@ def seed_users():
     # Create user objects
     user_objects = []
     for user_data in users:
-        user = UserModel(**user_data)
+        user = UserModel(**user_data) # Unpack dictionary into keyword arguments    
         user_objects.append(user)
 
     # Add all users to the database
