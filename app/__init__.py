@@ -2,28 +2,27 @@ from flask import Flask
 from dotenv import load_dotenv
 from os import getenv
 from app.models.base import db
+from app.api.auth import auth_bp
+from app.api.users import users_bp
+from app.api.units import units_bp
+
 
 def create_app():
     load_dotenv()
-    
+
     app = Flask(__name__)
-    app.secret_key = getenv("SECRET")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///storage.db"
-    
-    # Initialize the database
+    app.config.from_object('config.Config')
+
+    # Initialize extensions
     db.init_app(app)
-    
-    # Import all models to ensure they are registered with SQLAlchemy
-    from app.models.user import UserModel
-    from app.models.unit import UnitModel
-    from app.models.rental import Rental
-    
-    # Create all database tables
+
     with app.app_context():
+        # Create database tables
         db.create_all()
-    
-    # Import routes here to avoid circular imports
-    from app.routes import register_routes
-    register_routes(app)
-    
+
+    # Register blueprints
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(units_bp, url_prefix='/api/units')
+
     return app
