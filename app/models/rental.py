@@ -10,23 +10,18 @@ class Rental(BaseModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     unit_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('units.unit_id'), nullable=False)  # Changed from 'units.id' to 'units.unit_id'
+        Integer, ForeignKey('units.unit_id'), nullable=False)
     tenant_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('users.id'), nullable=False)
-    start_date: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow)
-    end_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    end_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     monthly_rate: Mapped[float] = mapped_column(Float, nullable=False)
-    status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default='active')
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, onupdate=datetime.utcnow)
 
-    # Relationships
-    unit = relationship('UnitModel', backref='rentals')
-    tenant = relationship('UserModel', backref='rentals')
-
-    def __repr__(self):
-        return f'<Rental {self.id} - Unit {self.unit_id} - Tenant {self.tenant_id}>'
+    # Define relationship without backref
+    unit = relationship("UnitModel")
+    tenant = relationship("UserModel")
