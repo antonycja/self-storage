@@ -31,6 +31,7 @@ class UserModel(BaseModel):
         foreign_keys="UnitModel.tenant_id",
         back_populates="tenant"
     )
+    rentals = relationship("Rental", back_populates="tenant")
 
     # Add some basic validation
     __table_args__ = (
