@@ -1,4 +1,5 @@
 from marshmallow import Schema, ValidationError, fields, validate, EXCLUDE, validates_schema
+from datetime import datetime
 
 from app.schemas.unit import UnitResponseSchema
 from app.schemas.user import UserResponseSchema
@@ -9,27 +10,34 @@ class RentalBaseSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
-    start_date = fields.DateTime(required=True)
-    end_date = fields.DateTime(required=True)
+    start_date = fields.Date(required=True)  # Changed to Date field
+    end_date = fields.Date(required=True)    # Changed to Date field
     rental_fee = fields.Float(validate=validate.Range(min=0))
     deposit_amount = fields.Float(validate=validate.Range(min=0))
 
     @validates_schema
     def validate_dates(self, data, **kwargs):
-        if data["start_date"] >= data["end_date"]:
-            raise ValidationError("End date must be after start date")
+        try:
+            if data["start_date"] >= data["end_date"]:
+                raise ValidationError("End date must be after start date")
+            if data['start_date'] < datetime.now().date():
+                raise ValidationError('Start date cannot be in the past')
+        except:
+            pass
 
 
 class RentalCreateSchema(RentalBaseSchema):
-    """Schema for rental creation"""
-    unit_id = fields.Int(required=True)
-    tenant_id = fields.Int(required=True)
+    """Schema for creating a rental"""
+    unit_id = fields.Str(required=True)
+    tenant_id = fields.Int(dump_only=True)
+    monthly_rate = fields.Float(required=True, validate=validate.Range(min=0))
 
 
 class RentalUpdateSchema(RentalBaseSchema):
     """Schema for rental updates"""
     status = fields.Str(validate=validate.OneOf(
         ["active", "terminated", "expired"]))
+
 
 class RentalResponseSchema(RentalBaseSchema):
     """Schema for rental responses"""

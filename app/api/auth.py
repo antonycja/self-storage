@@ -73,12 +73,6 @@ def login():
     return jsonify({'message': 'Invalid credentials'}), 401
 
 
-@auth_bp.route('/protected', methods=['GET'])
-@token_required
-def protected():
-    # Example protected route
-    return jsonify({'message': 'This is a protected route'})
-
 
 @auth_bp.route('/logout', methods=['POST'])
 @token_required

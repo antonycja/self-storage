@@ -1,4 +1,9 @@
 # seed_database.py
+from app.models.enums import UnitStatus
+from app.models.securityFeature import SecurityFeatureModel, SecurityFeatureType
+from app.models.unit import UnitModel
+from app.models.base import db
+from random import randint, choice, sample, random, uniform
 from app import create_app
 from random import choice, randint, uniform, random
 from datetime import datetime, timedelta
@@ -66,7 +71,8 @@ def seed_users():
     # Create user objects
     user_objects = []
     for user_data in users:
-        user = UserModel(**user_data) # Unpack dictionary into keyword arguments    
+        # Unpack dictionary into keyword arguments
+        user = UserModel(**user_data)
         user_objects.append(user)
 
     # Add all users to the database
@@ -123,90 +129,136 @@ def assign_tenants(status, size_sqm):
 
 
 def seed_units():
-    from app.models.base import db
-    from app.models.unit import UnitModel
-    from app.models.enums import UnitStatus
-
     # Clear existing data
+    db.session.query(SecurityFeatureModel).delete()
     db.session.query(UnitModel).delete()
+    db.session.commit()
 
-    # Define possible values for categorical fields
-    statuses = [status for status in UnitStatus]  # Use enum values directly
-    floor_levels = ['ground', 'first', 'second', 'basement']
-    climate_options = ['yes', 'no']
-    security_features_list = [
-        'Basic (Lock and Key)',
-        'Standard (Lock and Security Camera)',
-        'Premium (24/7 Monitoring, Individual Alarm)',
-        'Elite (Biometric Access, 24/7 Monitoring, Individual Alarm)'
-    ]
-
-    # Create 50 sample units
-    units = []
     for i in range(50):
-        # Calculate a realistic monthly rate based on size
+        # Define possible values for categorical fields
+        statuses = [status for status in UnitStatus]
+        floor_levels = ['Ground Floor', '1st Floor', '2nd Floor', 'Basement']
+
+        # Sample locations
+        locations = [
+            {
+                'country': 'South Africa',
+                'city': 'Cape Town',
+                'areas': ['Sea Point', 'Green Point', 'Camps Bay', 'Observatory']
+            },
+            {
+                'country': 'South Africa',
+                'city': 'Johannesburg',
+                'areas': ['Sandton', 'Rosebank', 'Randburg', 'Braamfontein']
+            }
+        ]
+
+        # Generate location data
+        location = choice(locations)
+        area = choice(location['areas'])
+
+        # Calculate base rate
         size = round(uniform(5.0, 50.0), 1)
-        base_rate = size * 20  # Base rate of $20 per square meter
+        base_rate = size * 20  # Base rate of R20 per square meter
 
-        # Add premium for climate control and security features
-        climate_controlled = choice(climate_options)
-        security_features = [choice(security_features_list)]
-
-        # Adjust rate based on features
-        rate_multiplier = 1.0
-        if climate_controlled == 'yes':
-            rate_multiplier += 0.2  # 20% premium for climate control
-        if 'Premium' in security_features[0]:
-            rate_multiplier += 0.15  # 15% premium for premium security
-        elif 'Elite' in security_features[0]:
-            rate_multiplier += 0.25  # 25% premium for elite security
-
-        monthly_rate = round(base_rate * rate_multiplier, 2)
+        # Climate control
+        climate_controlled = bool(random() < 0.3)  # 30% chance
+        rate_multiplier = 1.2 if climate_controlled else 1.0
 
         # Determine status and assign tenants
         status = choice(statuses)
-        if status == UnitStatus.OCCUPIED:
-            tenant_id, is_shared, shared_with_emails = assign_tenants(
-                status.value, size)
-            if tenant_id is None:
-                # If no tenant assigned, change status to vacant
-                status = UnitStatus.VACANT
-        else:
-            tenant_id, is_shared, shared_with_emails = assign_tenants(
-                status.value, size)
+        tenant_id, is_shared, shared_with_emails = assign_tenants(
+            status.value, size)
 
-        # Create unit with random owner (including admin)
+        if status == UnitStatus.OCCUPIED and tenant_id is None:
+            status = UnitStatus.VACANT
+
+        # Create unit first and add to session
         unit = UnitModel(
-            unit_id=i + 1,
+            unit_id=f"UNIT-{i+1:03d}",
+            unit_name=f"{area} Storage Unit {i+1}",
+            country=location['country'],
+            city=location['city'],
+            address_link=f"https://maps.google.com/?q={'+'.join(area.split())},{'+'.join(location['city'].split())}",
             status=status,
             size_sqm=size,
-            monthly_rate=monthly_rate,
+            monthly_rate=base_rate,
             climate_controlled=climate_controlled,
             floor_level=choice(floor_levels),
-            security_features=security_features,
             rental_duration_days=choice([30, 90, 180, 365]),
-            user_id=randint(1, 5),  # Random owner (including admin)
-            tenant_id=tenant_id,  # Main tenant (if unit is occupied/reserved)
-            shared_user_emails=shared_with_emails  # List of emails for additional tenants
+            user_id=randint(1, 5),
+            tenant_id=tenant_id,
+            shared_user_emails=shared_with_emails
         )
-        units.append(unit)
 
-    # Add all units to the database
-    db.session.bulk_save_objects(units)
-    db.session.commit()
+        db.session.add(unit)
+        db.session.flush()  # This ensures the unit has an ID
 
-    print(f"Successfully created {len(units)} sample storage units")
+        # Generate security features
+        num_features = randint(1, 4)
+        selected_features = [SecurityFeatureType.BASIC]  # Always include basic
+
+        # Add additional random features
+        available_features = [
+            f for f in SecurityFeatureType if f != SecurityFeatureType.BASIC]
+        if num_features > 1:
+            additional_features = sample(available_features, min(
+                num_features - 1, len(available_features)))
+            selected_features.extend(additional_features)
+
+        # Create and add security features
+        for feature in selected_features:
+            security_feature = SecurityFeatureModel(
+                unit_id=unit.unit_id,
+                feature_type=feature,
+                notes=f"Installed in 2024" if feature == SecurityFeatureType.CCTV else None
+            )
+            db.session.add(security_feature)
+
+            # Update rate multiplier
+            if feature in [SecurityFeatureType.BIOMETRIC, SecurityFeatureType.GUARDS]:
+                rate_multiplier += 0.15
+            elif feature in [SecurityFeatureType.CCTV, SecurityFeatureType.ACCESS]:
+                rate_multiplier += 0.10
+            elif feature in [SecurityFeatureType.ALARM, SecurityFeatureType.MOTION]:
+                rate_multiplier += 0.05
+
+        # Update final rate
+        unit.monthly_rate = round(base_rate * rate_multiplier, 2)
+
+    try:
+        db.session.commit()
+        print(f"Successfully created 50 units with security features")
+    except Exception as e:
+        print(f"Error creating units and features: {e}")
+        db.session.rollback()
+
+# Add this function to verify the seeding
+
+
+def verify_security_features():
+    """Verify security features were properly created"""
+    features = db.session.query(SecurityFeatureModel).count()
+    units = db.session.query(UnitModel).count()
+    print(f"Created {features} security features for {units} units")
+
+    # Sample check
+    sample_unit = db.session.query(UnitModel).first()
+    if sample_unit:
+        print(f"\nSample unit {sample_unit.unit_id} features:")
+        for feature in sample_unit.security_features:
+            print(f"- {feature.feature_name}")
 
 
 def seed_rentals():
     """Generate sample rental agreements based on occupied units"""
     from app.models.base import db
-    from app.models.rental import Rental
+    from app.models.rental import RentalModel
     from app.models.unit import UnitModel
     from app.models.enums import UnitStatus
 
     # Clear existing rentals
-    db.session.query(Rental).delete()
+    db.session.query(RentalModel).delete()
 
     # Get all occupied units using the enum value
     occupied_units = db.session.query(UnitModel).filter(
@@ -229,7 +281,7 @@ def seed_rentals():
         start_date = now - timedelta(days=randint(1, 60))
         end_date = start_date + timedelta(days=unit.rental_duration_days)
 
-        rental = Rental(
+        rental = RentalModel(
             unit_id=unit.unit_id,
             tenant_id=unit.tenant_id,  # This should not be None
             start_date=start_date,
@@ -262,6 +314,7 @@ if __name__ == "__main__":
             seed_users()
             seed_units()
             seed_rentals()  # Add rental agreements for occupied units
+            verify_security_features()  # Verify the seeding
             print("Database seeding completed successfully!")
         except Exception as e:
             print(f"Error seeding database: {e}")
