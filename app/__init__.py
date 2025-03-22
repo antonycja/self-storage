@@ -10,11 +10,20 @@ from app.api.units import units_bp
 from app.api.rentals import rentals_bp
 
 
-def create_app():
-    load_dotenv()
-
+def create_app(config_name=None):
+    """Application factory function"""
     app = Flask(__name__)
-    app.config.from_object('config.Config')
+
+    # Default configuration
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'your-secret-key'
+
+    # Configure based on environment
+    if config_name == 'testing':
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///storage.db'
 
     # Initialize extensions
     db.init_app(app)
