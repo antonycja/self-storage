@@ -19,4 +19,4 @@ COPY . .
 
 # Configure the container
 ENV PORT 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:${PORT}", "app:create_app()"]
+CMD ["gunicorn", "--bind", "0.0.0.0:${PORT}", "wsgi:application", "--workers=4", "--threads=2", "--timeout", "120"]

@@ -3,7 +3,7 @@ services:
     name: self-storage-api
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:create_app() --workers=4 --threads=2 --timeout 120
+    startCommand: gunicorn wsgi:application --workers=4 --threads=2 --timeout 120
     envVars:
       - key: FLASK_APP
         value: app

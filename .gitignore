@@ -10,3 +10,7 @@ venv/
 .DS_Store
 .idea/
 *.sqlite
+
+# Gunicorn
+gunicorn.pid
+gunicorn.sock

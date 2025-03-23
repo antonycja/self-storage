@@ -46,4 +46,8 @@ def create_app(config_name=None):
     app.register_blueprint(units_bp, url_prefix='/api/units')
     app.register_blueprint(rentals_bp, url_prefix='/api/rentals')
 
+    @app.route('/api/health')
+    def health_check():
+        return {"status": "healthy"}, 200
+
     return app
