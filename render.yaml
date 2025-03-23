@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: self-storage-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:create_app() --workers=4 --threads=2 --timeout 120
+    envVars:
+      - key: FLASK_APP
+        value: app
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: self-storage-db
+          property: connectionString
+
+databases:
+  - name: self-storage-db
+    plan: free
