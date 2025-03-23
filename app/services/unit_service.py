@@ -62,9 +62,9 @@ class UnitService:
             if not is_valid:
                 return {"error": error_message}
 
-            # Generate unit ID
-            unit_count = db.session.query(UnitModel).count()
-            unit_id = f"UNIT-{unit_count + 1:03d}"
+            # Generate unique unit ID using UUID
+            import uuid
+            unit_id = f"UNIT-{str(uuid.uuid4())[:8].upper()}"
 
             # Create unit with all fields from schema
             new_unit = UnitModel(
@@ -222,7 +222,7 @@ class UnitService:
         query = db.select(UnitModel)
 
         if city:
-            query = query.filter(UnitModel.city.like(f"%{city}%"))
+            query = query.filter(UnitModel.city.like(f"%{city.lower()}%"))
         if min_size:
             query = query.filter(UnitModel.size_sqm >= min_size)
         if max_size:
@@ -233,13 +233,14 @@ class UnitService:
             query = query.filter(UnitModel.monthly_rate <= max_price)
         if floor_level:
             query = query.filter(
-                UnitModel.floor_level.like(f"%{floor_level}%"))
+                UnitModel.floor_level.like(f"%{floor_level.lower()}%"))
         if status:
-            query = query.filter(UnitModel.status.like(f"%{status}%"))
+            query = query.filter(UnitModel.status.like(f"%{status.lower()}%"))
         if features:
             for feature in features:
                 query = query.join(SecurityFeatureModel).filter(
-                    SecurityFeatureModel.feature_type == SecurityFeatureType[feature]
+                    SecurityFeatureModel.feature_type == SecurityFeatureType[feature.upper(
+                    )]
                 )
 
         units = db.session.execute(query).scalars().all()
@@ -569,3 +570,31 @@ class UnitService:
         except Exception as e:
             db.session.rollback()
             return {"error": f"Failed to remove security features: {str(e)}"}
+
+    @staticmethod
+    def _generate_unit_id(city: str) -> str:
+        """Generate a unique unit ID based on city and sequential number"""
+        # Get current year
+        current_year = datetime.now().year
+
+        # Get city prefix (first 3 letters uppercase)
+        city_prefix = city[:3].upper()
+
+        # Get the last unit number for this city and year
+        last_unit = db.session.execute(
+            db.select(UnitModel)
+            .filter(
+                UnitModel.unit_id.like(f"{city_prefix}-{current_year}-%")
+            )
+            .order_by(UnitModel.unit_id.desc())
+        ).scalar_one_or_none()
+
+        # Get next sequence number
+        if last_unit:
+            last_seq = int(last_unit.unit_id.split('-')[-1])
+            next_seq = last_seq + 1
+        else:
+            next_seq = 1
+
+        # Format: CPT-2024-0001
+        return f"{city_prefix}-{current_year}-{next_seq:04d}"

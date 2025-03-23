@@ -1,7 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 import bcrypt
 from app.models.base import db
+from app.models.unit import UnitModel
 from app.models.user import UserModel
+from app.models.rental import RentalModel
 from app.api.auth import token_required
 
 users_bp = Blueprint('users', __name__)
@@ -130,11 +132,42 @@ def update_user(user_id):
 @token_required
 def delete_user(user_id):
     """Delete a user"""
+    # Check if the authenticated user is trying to delete their own profile
+    if str(user_id) != str(g.current_user['id']):
+        return jsonify({'message': 'Unauthorized. Can only delete your own profile'}), 403
+
     user = db.session.get(UserModel, user_id)
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
-    db.session.delete(user)
-    db.session.commit()
+    # Check for active rentals where user is tenant
+    active_rentals = db.session.execute(
+        db.select(RentalModel)
+        .filter(
+            RentalModel.tenant_id == user_id,
+            RentalModel.status == 'active'
+        )
+    ).scalar_one_or_none()
 
-    return jsonify({'message': 'User deleted successfully'})
+    # Check for active rentals where user is unit owner
+    owned_units_with_rentals = db.session.execute(
+        db.select(UnitModel)
+        .join(RentalModel)
+        .filter(
+            UnitModel.user_id == user_id,
+            RentalModel.status == 'active'
+        )
+    ).scalar_one_or_none()
+    print(active_rentals, owned_units_with_rentals)
+    if active_rentals or owned_units_with_rentals:
+        return jsonify({
+            'message': 'Cannot delete profile with active rentals. Please terminate all rentals first.'
+        }), 400
+
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User profile deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Failed to delete user: {str(e)}'}), 500

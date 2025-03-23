@@ -48,16 +48,20 @@ class RentalModel(BaseModel):
         return round(self.monthly_rate * months, 2)
 
     def add_shared_user(self, email: str) -> bool:
-        """Add a shared user email"""
+        """Add a user to shared users list"""
         try:
             shared_users = json.loads(self.shared_user_emails or '[]')
+            if not shared_users:
+                shared_users = []
+
             if email not in shared_users:
                 shared_users.append(email)
                 self.shared_user_emails = json.dumps(shared_users)
                 return True
             return False
-        except Exception:
-            return False
+        except json.JSONDecodeError:
+            self.shared_user_emails = json.dumps([email])
+            return True
 
     def remove_shared_user(self, email: str) -> bool:
         """Remove a shared user email"""

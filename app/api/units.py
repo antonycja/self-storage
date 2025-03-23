@@ -37,7 +37,7 @@ def get_available_units():
 @token_required
 def get_user_units(user_id):
     """Get units owned or rented by a user"""
-    if g.current_user['id'] != user_id:
+    if str(g.current_user['id']) != str(user_id):
         return jsonify({"error": "Unauthorized"}), 403
     units = UnitService.get_user_units(user_id)
     return jsonify(units)

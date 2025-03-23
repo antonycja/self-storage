@@ -33,7 +33,9 @@ class RentalService:
                 end_date=data['end_date'],
                 monthly_rate=unit.monthly_rate,
                 status='active',
-                created_at=datetime.now(tz=timezone.utc)
+                created_at=datetime.now(tz=timezone.utc),
+                updated_at=datetime.now(tz=timezone.utc),
+                total_cost=(data['end_date'] - data['start_date']).days * (unit.monthly_rate / 30)
             )
 
             # TODO: Change this when payment methods is implemented
@@ -108,7 +110,14 @@ class RentalService:
             for field in allowed_fields:
                 if field in data:
                     setattr(rental, field, data[field])
-
+            end_date = data.get('end_date', rental.end_date)
+            if isinstance(end_date, datetime):
+                end_date = end_date.date()
+            if isinstance(rental.start_date, datetime):
+                start_date = rental.start_date.date()
+            else:
+                start_date = rental.start_date
+            rental.total_cost = (end_date - start_date).days * (rental.monthly_rate / 30)
             rental.updated_at = datetime.now(tz=timezone.utc)
             db.session.commit()
 
