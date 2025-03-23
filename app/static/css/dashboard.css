@@ -1,0 +1,79 @@
+main {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  line-height: 1.6;
+}
+form {
+  display: inline;
+}
+
+
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 5px;
+}
+.profile-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #007bff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  margin-right: 20px;
+}
+.user-info h1 {
+  margin: 0 0 10px 0;
+}
+.nav-links {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.nav-links a,
+.nav-links button {
+  display: inline-block;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.5;
+  border: none;
+}
+.nav-links a {
+  background-color: #4caf50;
+  color: white;
+}
+.nav-links button {
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+}
+.nav-links a:hover,
+.nav-links button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.nav-links a:hover {
+  background-color: #45a049;
+}
+.nav-links button:hover {
+  background-color: #c82333;
+}
+.nav-links form {
+  margin: 0;
+  line-height: 0;
+}
+

@@ -1,0 +1,10 @@
+unit_id,status,size_sqm,monthly_rate,climate_controlled,floor_level,security_features,rental_duration_days,user_id
+101,Available,4.6,$100,No,Ground,"CCTV, Keypad Entry",0,""
+102,Available,9.3,$180,Yes,1st,"CCTV, Keypad Entry",0,""
+103,Available,7.0,$140,No,Ground,"CCTV, On-Site Guard",0,""
+104,Available,4.6,$110,No,2nd,Keypad Entry,0,""
+105,Available,18.6,$300,Yes,1st,"CCTV, Keycard Access",0,""
+106,Available,14.0,$220,Yes,Ground,"CCTV, Alarm System",0,""
+107,Available,7.4,$130,No,2nd,"Keypad Entry, Lighting",0,""
+108,Available,11.1,$200,Yes,1st,"CCTV, Keycard Access",0,""
+109,Available,5.6,$90,No,Ground,On-Site Guard,0,""

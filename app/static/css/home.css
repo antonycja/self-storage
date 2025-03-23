@@ -1,0 +1,53 @@
+
+  body {
+    
+    background-color: rgb(10, 4, 4);
+    color: var(--dark-color);
+  }
+
+.showcase {
+    background: url("/api/placeholder/1200/400") no-center center/cover;
+    height: 400px;
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .showcase h1 {
+    font-size: 55px;
+    margin-bottom: 15px;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--secondary-color);
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    transition: background 0.3s ease;
+  }
+  .btn:hover {
+    background: #27ae60;
+  }
+  .features {
+    display: flex;
+    justify-content: space-between;
+    padding: 50px 0;
+    text-align: center;
+  }
+  .feature {
+    flex: 1;
+    padding: 20px;
+    background: white;
+    margin: 0 15px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  .feature i {
+    font-size: 50px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+  }

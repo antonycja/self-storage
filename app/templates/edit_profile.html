@@ -1,0 +1,110 @@
+{% extends 'base.html'%} {% block title %} Edit Profile | Secure Access {%
+endblock %} {% block styles %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/edit_profile.css') }}"
+/>
+{% endblock %} {% block content %}
+<main>
+  <div class="edit-profile-container">
+    <h2>Edit Profile</h2>
+    <form
+      method="post"
+      action="{{url_for('edit_profile')}}"
+      novalidate
+    >
+      {{ form.csrf_token }}
+      <div class="names">
+        <div class="input-group">
+          {{form.name}} {{form.name.label}} {% for err in form.name.errors %}
+          <span style="color: red">{{err}}</span>
+          {% endfor %}
+        </div>
+
+        <div class="input-group">
+          {{ form.surname }} {{ form.surname.label }} {% for err in
+          form.surname.errors %}
+          <span style="color: red">{{err}}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="input-group">
+        <input
+          type="email"
+          value="{{ user.email }}"
+          disabled
+        />
+        <label class="disabled">Email (cannot be changed)</label>
+      </div>
+
+      <div class="input-group">
+        {{ form.old_password }} {{ form.old_password.label }} {% for err in
+        form.old_password.errors %}
+        <span style="color: red">{{err}}</span>
+        {% endfor %}
+      </div>
+
+      <div class="input-group">
+        {{ form.new_password }} {{ form.new_password.label }} {% for err in
+        form.new_password.errors %}
+        <span style="color: red">{{err}}</span>
+        {% endfor %}
+      </div>
+
+      <div class="input-group">
+        {{ form.confirm_new_password }} {{ form.confirm_new_password.label }} {%
+        for err in form.confirm_new_password.errors %}
+        <span style="color: red">{{err}}</span>
+        {% endfor %}
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=True) %}
+      <span style="color: red">
+        {% if messages and (messages[-1][0] != 'success') %} {{ messages[0][1]
+        }} {% endif %}
+      </span>
+      {% endwith %}
+
+      <div class="button-group">
+        <div class="btn-container">
+          <div class="submit-btn">{{ form.submit }}</div>
+          <a
+            href="/dashboard"
+            class="cancel-btn"
+            >Cancel</a
+          >
+        </div>
+        <button
+          type="button"
+          class="delete-btn"
+          onclick="confirmDelete()"
+        >
+          Delete Profile
+        </button>
+      </div>
+    </form>
+    <!-- Hidden form to handle POST request -->
+    <form
+      id="deleteForm"
+      action="{{ url_for('delete_profile') }}"
+      method="POST"
+      style="display: none"
+    >
+    
+    </form>
+  </div>
+</main>
+
+<script>
+  function confirmDelete() {
+    if (
+      confirm(
+        "Are you sure you want to delete your profile? This action cannot be undone."
+      )
+    ) {
+      document.getElementById("deleteForm").submit();
+    }
+  }
+</script>
+{% endblock %}

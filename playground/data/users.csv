@@ -1,0 +1,3 @@
+id,name,surname,email,password_hash
+1,Antony,Maposa,ant@gmail.com,$2b$12$t7J9gwz50A80C27WCZzKce7SiEjUb1/z3KBTxLetRIxirBJg1y8Q.
+2,Code,Maposa,code@gmail.com,$2b$12$qzPKBqPbSPVKapop2noxgOPy11rnTtatglEYDNSyN50QhATOaZmkK

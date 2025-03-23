@@ -1,0 +1,69 @@
+{% extends 'base.html'%} {% block title %} Sign Up | Secure Access {% endblock
+%} {% block styles %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/signup.css') }}"
+/>
+{% endblock %} {% block content %}
+
+<main>
+  <div class="signup-container">
+    <h2>Create a New Account</h2>
+    <form
+      method="post"
+      action="{{url_for('signup')}}"
+      novalidate
+    >
+      {{ form.csrf_token }}
+      <div class="names">
+        <div class="input-group">
+          {{form.name}} {{form.name.label}} {% for err in form.name.errors %}
+          <span style="color: red">{{err}}</span>
+          {% endfor %}
+        </div>
+
+        <div class="input-group">
+          {{ form.surname }} {{ form.surname.label }} {% for err in
+          form.surname.errors %}
+          <span style="color: red">{{err}}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="input-group">
+        {{ form.email }} {{ form.email.label }} {% for err in form.email.errors
+        %}
+        <span style="color: red">{{err}}</span>
+        {% endfor %}
+      </div>
+
+      <div class="input-group">
+        {{ form.password }} {{ form.password.label }} {% for err in form.password.errors
+        %}
+        <span style="color: red">{{err}}</span>
+        {% endfor %}
+      </div>
+
+      <div class="input-group">
+        {{ form.confirm }} {{ form.confirm.label }} {% for err in form.confirm.errors
+        %}
+        <span style="color: red">{{err}}</span>
+        {% endfor %}
+      </div>
+
+      <span style="color: red">{{ get_flashed_messages()[0] }}</span>
+
+      <div class="submit-btn">{{ form.submit}}</div>
+    </form>
+    <div class="social-signup">
+      <a href="#"><i class="fab fa-google"></i></a>
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-github"></i></a>
+    </div>
+    <div class="login-link">
+      Already have an account? <a href="/login">Login</a>
+    </div>
+  </div>
+</main>
+
+{% endblock %}

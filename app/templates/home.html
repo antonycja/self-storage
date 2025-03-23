@@ -1,0 +1,37 @@
+{% extends 'base.html' %} {% block title %}Home | Secure Access {% endblock %}
+{% block styles %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/home.css') }}"
+/>
+{% endblock %} {% block content %}
+
+<div class="showcase">
+  <h1>Welcome to Our Platform</h1>
+  <p>Discover, Learn, and Grow</p>
+  <a
+    href="/login"
+    class="btn"
+    >Get Started</a
+  >
+</div>
+
+<section class="features container">
+  <div class="feature">
+    <i class="fas fa-chart-line"></i>
+    <h3>Analytics</h3>
+    <p>Advanced tracking and insights for your data.</p>
+  </div>
+  <div class="feature">
+    <i class="fas fa-lock"></i>
+    <h3>Security</h3>
+    <p>Top-tier protection for your sensitive information.</p>
+  </div>
+  <div class="feature">
+    <i class="fas fa-user-friends"></i>
+    <h3>Collaboration</h3>
+    <p>Seamless teamwork and communication tools.</p>
+  </div>
+</section>
+
+{% endblock %}
