@@ -162,7 +162,7 @@ def seed_units():
         base_rate = size * 20  # Base rate of R20 per square meter
 
         # Climate control
-        climate_controlled = bool(random() < 0.3)  # 30% chance
+        climate_controlled = random() < 0.3  # This already returns a proper boolean
         rate_multiplier = 1.2 if climate_controlled else 1.0
 
         # Determine status and assign tenants

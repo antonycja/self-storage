@@ -7,7 +7,10 @@ class Config:
     SECRET_KEY = getenv('SECRET', 'your-secret-key')
 
     # SQLAlchemy settings
-    SQLALCHEMY_DATABASE_URI = getenv('DATABASE_URL', 'sqlite:///storage.db')
+    uri = getenv("DATABASE_URL")
+    if uri and uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
+    SQLALCHEMY_DATABASE_URI = uri or "sqlite:///storage.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # JWT settings

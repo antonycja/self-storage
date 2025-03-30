@@ -10,8 +10,8 @@ class RentalModel(BaseModel):
     __tablename__ = 'rentals'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    unit_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('units.unit_id'), nullable=False)
+    unit_id: Mapped[str] = mapped_column(
+        String(20), ForeignKey('units.unit_id'), nullable=False)
     tenant_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('users.id'), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)

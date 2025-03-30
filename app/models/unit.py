@@ -6,13 +6,14 @@ from typing import Optional, List
 from app.models.enums import UnitStatus
 # Add this import
 from app.models.securityFeature import SecurityFeatureModel, SecurityFeatureType
+from sqlalchemy.dialects import postgresql
 
 
 class UnitModel(BaseModel):
     """Model for a Unit"""
     __tablename__ = "units"
 
-    unit_id: Mapped[str] = mapped_column(String, primary_key=True)
+    unit_id: Mapped[str] = mapped_column(String(20), primary_key=True)
     unit_name: Mapped[str] = mapped_column(String, nullable=False)
     country: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str] = mapped_column(String, nullable=False)
@@ -46,6 +47,12 @@ class UnitModel(BaseModel):
         nullable=True,
         index=True
     )
+    images: Mapped[List[str]] = mapped_column(
+        postgresql.ARRAY(String),
+        default=[],
+        server_default='{}',
+        nullable=False
+    )
 
     # Relationships
     security_features: Mapped[List["SecurityFeatureModel"]] = relationship(
@@ -62,9 +69,7 @@ class UnitModel(BaseModel):
     # Constraints
     __table_args__ = (
         CheckConstraint('size_sqm > 0', name='positive_size'),
-        CheckConstraint('rental_duration_days > 0', name='positive_duration'),
-        CheckConstraint('climate_controlled IN (0, 1)',
-                        name='valid_climate_control')
+        CheckConstraint('rental_duration_days > 0', name='positive_duration')
     )
 
     @staticmethod

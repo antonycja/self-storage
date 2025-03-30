@@ -31,6 +31,7 @@ class UnitBaseSchema(Schema):
             "validator_failed": "Rental duration must be at least 1 day"})
 
     security_features = fields.List(fields.Str())
+    images = fields.List(fields.Url(require_tld=False), required=False)
 
 
 class UnitCreateSchema(UnitBaseSchema):
@@ -49,6 +50,8 @@ class UnitCreateSchema(UnitBaseSchema):
         )
     )
     user_id = fields.Int(dump_only=True)
+    images = fields.List(fields.Url(require_tld=False),
+                         required=False, missing=[])
 
 
 class UnitUpdateSchema(UnitBaseSchema):
@@ -57,6 +60,7 @@ class UnitUpdateSchema(UnitBaseSchema):
     tenant_id = fields.Int(allow_none=True)
     shared_user_emails = fields.List(fields.Email(), load_default=list)
     user_id = fields.Int()
+    images = fields.List(fields.Url(require_tld=False), required=False)
 
 
 class UnitResponseSchema(UnitBaseSchema):

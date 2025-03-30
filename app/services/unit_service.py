@@ -55,16 +55,15 @@ class UnitService:
 
     @staticmethod
     def create_unit(data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create a new storage unit with security features"""
+        """Create a new storage unit with security features and images"""
         try:
             # Validate data first
             is_valid, error_message = UnitService._validate_unit_data(data)
             if not is_valid:
                 return {"error": error_message}
 
-            # Generate unique unit ID using UUID
-            import uuid
-            unit_id = f"UNIT-{str(uuid.uuid4())[:8].upper()}"
+            # Generate unit ID
+            unit_id = UnitService._generate_unit_id(data['city'])
 
             # Create unit with all fields from schema
             new_unit = UnitModel(
@@ -82,7 +81,8 @@ class UnitService:
                 rental_duration_days=data['rental_duration_days'],
                 user_id=data['user_id'],
                 tenant_id=data.get('tenant_id'),
-                shared_user_emails=data.get('shared_user_emails', [])
+                shared_user_emails=data.get('shared_user_emails', []),
+                images=data.get('images', [])  # Add images here
             )
 
             # Add security features if provided
@@ -315,14 +315,14 @@ class UnitService:
                     'type': feature.feature_type.value,
                     'notes': feature.notes
                 } for feature in unit.security_features
-            ]
+            ],
+            'images': unit.images
         }
 
         # Add owner info
         if unit.owner:
             serialized['owner'] = {
-                'id': unit.owner.id,
-                'name': unit.owner.name,
+                'name': f"{unit.owner.name} {unit.owner.surname}",
                 'email': unit.owner.email
             }
 
@@ -351,7 +351,7 @@ class UnitService:
             if unit.tenant:
                 serialized['tenant'] = {
                     'id': unit.tenant.id,
-                    'name': unit.tenant.name,
+                    'name': f"{unit.tenant.name} {unit.tenant.surname}",
                     'email': unit.tenant.email
                 }
                 serialized['tenant_id'] = unit.tenant_id
@@ -433,6 +433,21 @@ class UnitService:
                     SecurityFeatureType[feature]
             except KeyError:
                 return False, f"Invalid security feature: {feature}"
+
+        # Validate image URLs if provided
+        if 'images' in data:
+            if not isinstance(data['images'], list):
+                return False, "Images must be a list of URLs"
+
+            for url in data['images']:
+                try:
+                    parsed = urlparse(url)
+                    if not parsed.scheme or not parsed.netloc:
+                        return False, f"Invalid image URL format: {url}"
+                    if re.search(r'[<>"\']', url):
+                        return False, "Image URL contains invalid characters"
+                except Exception:
+                    return False, f"Invalid image URL format: {url}"
 
         return True, ""
 
@@ -570,6 +585,46 @@ class UnitService:
         except Exception as e:
             db.session.rollback()
             return {"error": f"Failed to remove security features: {str(e)}"}
+
+    @staticmethod
+    def add_unit_images(unit_id: str, images: List[str]) -> Dict[str, Any]:
+        """Add images to a unit"""
+        try:
+            unit = db.session.execute(
+                db.select(UnitModel).filter_by(unit_id=unit_id)
+            ).scalar_one_or_none()
+
+            if not unit:
+                return {"error": "Unit not found"}
+
+            # Add new images to existing list
+            unit.images.extend(images)
+            db.session.commit()
+
+            return UnitService._serialize_unit(unit)
+        except Exception as e:
+            db.session.rollback()
+            return {"error": f"Failed to add images: {str(e)}"}
+
+    @staticmethod
+    def remove_unit_image(unit_id: str, image_url: str) -> Dict[str, Any]:
+        """Remove an image from a unit"""
+        try:
+            unit = db.session.execute(
+                db.select(UnitModel).filter_by(unit_id=unit_id)
+            ).scalar_one_or_none()
+
+            if not unit:
+                return {"error": "Unit not found"}
+
+            if image_url in unit.images:
+                unit.images.remove(image_url)
+                db.session.commit()
+
+            return UnitService._serialize_unit(unit)
+        except Exception as e:
+            db.session.rollback()
+            return {"error": f"Failed to remove image: {str(e)}"}
 
     @staticmethod
     def _generate_unit_id(city: str) -> str:
